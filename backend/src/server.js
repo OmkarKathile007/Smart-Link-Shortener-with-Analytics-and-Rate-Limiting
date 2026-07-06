@@ -4,6 +4,7 @@ import app from "./app.js";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import linkRoutes from "./routes/link.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
 dotenv.config();
@@ -13,6 +14,7 @@ connectDB();
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/links", linkRoutes);
 
 // 404 + centralized error handling — must be registered after all routes.
 app.use(notFound);
@@ -40,7 +42,9 @@ const shutdown = (signal, err) => {
   setTimeout(() => process.exit(1), 10000).unref();
 };
 
-process.on("unhandledRejection", (reason) => shutdown("unhandledRejection", reason));
+process.on("unhandledRejection", (reason) =>
+  shutdown("unhandledRejection", reason)
+);
 process.on("uncaughtException", (err) => shutdown("uncaughtException", err));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
