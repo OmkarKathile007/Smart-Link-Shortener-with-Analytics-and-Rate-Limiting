@@ -1,0 +1,79 @@
+.wrapper {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-base);
+  padding: 24px 16px;
+}
+
+/* Animated gradient orbs */
+.orb1,
+.orb2,
+.orb3 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  animation: float 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.orb1 {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+  top: -160px;
+  left: -160px;
+  animation-duration: 10s;
+}
+
+.orb2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #4f46e5 0%, transparent 70%);
+  bottom: -120px;
+  right: -100px;
+  animation-duration: 13s;
+  animation-delay: -4s;
+}
+
+.orb3 {
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, #a855f7 0%, transparent 70%);
+  top: 50%;
+  left: 60%;
+  animation-duration: 9s;
+  animation-delay: -2s;
+  opacity: 0.2;
+}
+
+/* Subtle dot grid */
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #2a2b38 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 460px;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-24px) scale(1.05);
+  }
+}

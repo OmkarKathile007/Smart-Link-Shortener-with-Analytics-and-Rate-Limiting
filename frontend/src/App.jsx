@@ -1,26 +1,22 @@
-import { useState,useEffect } from 'react'
-import axios from 'axios'
-import './App.css'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import Dashboard from './pages/Dashboard'
+import ProtectedRoute from './components/ProtectedRoute'
 
-function App() {
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    axios
-    .get("http://localhost:5000")
-    .then((res)=>setMessage(res.data.message))
-    .catch((err)=>console.log(err));
-  }, []);
-
+export default function App() {
   return (
-    <>
-      
-    <div style={{ padding: "40px" }}>
-      <h1>Smart Link Shortener</h1>
-      <p>{message}</p>
-    </div>
-    </>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      {/* Protected routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Route>
+
+      {/* Default redirect */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   )
 }
-
-export default App
