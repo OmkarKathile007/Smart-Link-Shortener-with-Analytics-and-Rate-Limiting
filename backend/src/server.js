@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import linkRoutes from "./routes/link.routes.js";
+import redirectRoutes from "./routes/redirect.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
 dotenv.config();
@@ -15,6 +16,10 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/links", linkRoutes);
+
+// Public redirect — /s/:code → longUrl
+// NOTE: /s/ prefix isliye taaki /api/* routes se conflict na ho
+app.use("/s", redirectRoutes);
 
 // 404 + centralized error handling — must be registered after all routes.
 app.use(notFound);
