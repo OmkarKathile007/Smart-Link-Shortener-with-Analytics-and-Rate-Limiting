@@ -77,8 +77,8 @@ export default function Dashboard() {
     setTimeout(() => setCopied(null), 2000)
   }
 
-  function handleLogout() {
-    logout()
+  async function handleLogout() {
+    await logout()
     navigate('/login')
   }
 

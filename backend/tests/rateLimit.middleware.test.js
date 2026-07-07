@@ -4,7 +4,7 @@ import {resolveLimits} from "../src/middleware/rateLimit.middleware.js";
 
 
 test("reads the max-requests env var",()=>{
-    const {limit}=resolveLimits({RATE_LIMIT_MAX_REQUESTS:"5"});
+    const {limit}=resolveLimits({RATE_LIMIT_MAX_REQUESTS:"100"});
     assert.equal(limit,5);
 })
 

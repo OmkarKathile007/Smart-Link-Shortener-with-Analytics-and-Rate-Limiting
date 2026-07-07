@@ -6,7 +6,67 @@ const AuthContext = createContext(null);
 export const API = axios.create({
   baseURL: "http://localhost:5000/api",
   headers: { "Content-Type": "application/json" },
+  withCredentials: true, 
 });
+
+// --- Silent access-token refresh -------------------------------------------
+// The access token lives ~15 min ONLY the refresh token >> httpOnly cookie.
+// When a request 401s we call /auth/refresh once, update the token, and retry.
+
+let refreshPromise = null; 
+
+function doRefresh() {
+  if (!refreshPromise) {
+    refreshPromise = API.post("/auth/refresh")
+      .then((res) => {
+        const token = res.data.token;
+        API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+        const stored = localStorage.getItem("sls_user");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          parsed.token = token;
+          localStorage.setItem("sls_user", JSON.stringify(parsed));
+        }
+        return token;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+}
+
+API.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config;
+    const status = error.response?.status;
+
+    const isAuthRoute = original?.url?.includes("/auth/");
+
+    if (status === 401 && original && !original._retry && !isAuthRoute) {
+      original._retry = true;
+      try {
+        const token = await doRefresh();
+        original.headers = original.headers || {};
+        original.headers["Authorization"] = `Bearer ${token}`;
+        return API(original);
+      } catch (refreshErr) {
+        // Refresh failed (expired/revoked) — drop the session and go to login.
+        localStorage.removeItem("sls_user");
+        delete API.defaults.headers.common["Authorization"];
+        if (window.location.pathname !== "/login") {
+          window.location.assign("/login");
+        }
+        return Promise.reject(refreshErr);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+// ---------------------------------------------------------------------------
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -35,7 +95,13 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // Revoke the refresh token server-side; clear local state regardless.
+    try {
+      await API.post("/auth/logout");
+    } catch {
+      // ignore network/401 — we still clear the client session below
+    }
     localStorage.removeItem("sls_user");
     delete API.defaults.headers.common["Authorization"];
     setUser(null);

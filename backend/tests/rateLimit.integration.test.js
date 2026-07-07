@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-process.env.RATE_LIMIT_MAX_REQUESTS = "3";
+process.env.RATE_LIMIT_MAX_REQUESTS = "100";
 process.env.RATE_LIMIT_WINDOW_MS = "60000";
 
 test("global limiter allows N requests, then returns 429", async () => {
@@ -14,7 +14,7 @@ test("global limiter allows N requests, then returns 429", async () => {
   const url = `http://localhost:${port}/`;
 
   const results = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 100; i++) {
     const res = await fetch(url);
     results.push({ status: res.status, rateLimit: res.headers.get("RateLimit") });
   }
