@@ -1,5 +1,6 @@
+import "dotenv/config"; 
 import mongoose from "mongoose";
-import dotenv from "dotenv";
+
 import app from "./app.js";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -8,7 +9,7 @@ import linkRoutes from "./routes/link.routes.js";
 import redirectRoutes from "./routes/redirect.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
-dotenv.config();
+
 const PORT = process.env.PORT || 5000;
 
 connectDB();
