@@ -7,8 +7,8 @@ import { authLimiter } from "./middleware/rateLimit.middleware.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import linkRoutes from "./routes/link.routes.js";
-import redirectRoutes from "./routes/redirect.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
+import redirectRoutes from "./routes/redirect.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
 const PORT = process.env.PORT || 5000;
@@ -19,6 +19,7 @@ app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/links", linkRoutes);
 app.use("/api/analytics", analyticsRoutes);
+
 app.use("/s", redirectRoutes);
 
 app.use(notFound);

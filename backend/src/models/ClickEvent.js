@@ -8,19 +8,19 @@ const clickEventSchema = new mongoose.Schema(
       required: true,
     },
 
-    // Hashed IP for privacy (SHA-256 + salt) — raw IP kabhi store nahi hoti
+
     ipHash: {
       type: String,
     },
 
-    // Referrer URL (HTTP Referer header se)
+
     referrer: {
       type: String,
       default: "Direct",
       trim: true,
     },
 
-    // ua-parser-js se extracted device info
+   
     deviceType: {
       type: String,
       enum: ["desktop", "mobile", "tablet", "bot", "unknown"],
@@ -35,7 +35,7 @@ const clickEventSchema = new mongoose.Schema(
       default: "Unknown",
     },
 
-    // Optional: country code (e.g. "IN", "US") — future use ke liye
+   
     country: {
       type: String,
       default: null,
@@ -47,14 +47,13 @@ const clickEventSchema = new mongoose.Schema(
     },
   },
   {
-    // createdAt/updatedAt ki zaroorat nahi, timestamp field khud manage kar raha hai
+  
     timestamps: false,
     versionKey: false,
   }
 );
 
-// Compound index — analytics aggregation queries is index se fast hongi
-// { linkId: 1, timestamp: -1 } → "is link ke recent clicks" fast milenge
+
 clickEventSchema.index({ linkId: 1, timestamp: -1 });
 
 export default mongoose.model("ClickEvent", clickEventSchema);

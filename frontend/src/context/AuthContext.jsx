@@ -11,9 +11,7 @@ export const API = axios.create({
   withCredentials: true,
 });
 
-// --- Silent access-token refresh -------------------------------------------
-// The access token lives ~15 min ONLY the refresh token >> httpOnly cookie.
-// When a request 401s we call /auth/refresh once, update the token, and retry.
+
 
 let refreshPromise = null; 
 
@@ -55,7 +53,7 @@ API.interceptors.response.use(
         original.headers["Authorization"] = `Bearer ${token}`;
         return API(original);
       } catch (refreshErr) {
-        // Refresh failed (expired/revoked) — drop the session and go to login.
+        
         localStorage.removeItem("sls_user");
         delete API.defaults.headers.common["Authorization"];
         if (window.location.pathname !== "/login") {
@@ -68,13 +66,13 @@ API.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-// ---------------------------------------------------------------------------
+
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore session on page refresh
+
   useEffect(() => {
     const stored = localStorage.getItem("sls_user");
     if (stored) {
@@ -98,14 +96,14 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    // Revoke the refresh token server-side; clear local state regardless.
+    
     try {
       await API.post("/auth/logout");
     } catch {
-      // ignore network/401 — we still clear the client session below
+    
     }
     localStorage.removeItem("sls_user");
-    delete API.defaults.headers.common["Authorization"];
+      delete API.defaults.headers.common["Authorization"];
     setUser(null);
   };
 

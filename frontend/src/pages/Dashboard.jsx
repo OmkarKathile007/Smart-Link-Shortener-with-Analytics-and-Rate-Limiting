@@ -94,6 +94,9 @@ export default function Dashboard() {
             Smart Link Shortener
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Button size="small" color="inherit" onClick={() => navigate('/analytics')}>
+              Analytics
+            </Button>
             <Typography variant="body2" color="text.secondary">
               {user?.name}
             </Typography>
