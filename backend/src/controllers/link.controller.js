@@ -6,9 +6,7 @@ export const createLink = async (req, res) => {
   const { longUrl, customAlias, expiresAt } = req.body;
 
   if (!longUrl || !isValidUrl(longUrl)) {
-    return res.status(400).json({
-      message: "Valid URL required",
-    });
+    return res.status(400).json({ message: "Valid URL required" });
   }
 
   try {
@@ -18,93 +16,77 @@ export const createLink = async (req, res) => {
       customAlias,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
     });
-
     res.status(201).json(link);
   } catch (err) {
-    res.status(err.statusCode || 500).json({
-      message: err.message,
-    });
+    res.status(err.statusCode || 500).json({ message: err.message });
   }
 };
 
 export const getMyLinks = async (req, res) => {
-  const links = await Link.find({
-    ownerId: req.userId,
-  }).sort({
-    createdAt: -1,
-  });
-
-  res.json(links);
+  try {
+    const links = await Link.find({ ownerId: req.userId }).sort({ createdAt: -1 });
+    res.json(links);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 export const getSingleLink = async (req, res) => {
-  const link = await Link.findOne({
-    _id: req.params.id,
-    ownerId: req.userId,
-  });
-
-  if (!link) {
-    return res.status(404).json({
-      message: "Link not found",
-    });
+  try {
+    const link = await Link.findOne({ _id: req.params.id, ownerId: req.userId });
+    if (!link) return res.status(404).json({ message: "Link not found" });
+    res.json(link);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  res.json(link);
 };
 
 export const updateLink = async (req, res) => {
-  const link = await Link.findOneAndUpdate(
-    {
-      _id: req.params.id,
-      ownerId: req.userId,
-    },
-    req.body,
-    {
-      new: true,
+  try {
+    const { longUrl, customAlias, expiresAt, isActive } = req.body;
+
+    const allowedUpdates = {};
+    if (longUrl !== undefined) {
+      if (!isValidUrl(longUrl)) {
+        return res.status(400).json({ message: "Valid URL required" });
+      }
+      allowedUpdates.longUrl = longUrl;
     }
-  );
+    if (customAlias !== undefined) allowedUpdates.customAlias = customAlias;
+    if (expiresAt !== undefined) allowedUpdates.expiresAt = expiresAt ? new Date(expiresAt) : null;
+    if (isActive !== undefined) allowedUpdates.isActive = isActive;
 
-  if (!link) {
-    return res.status(404).json({
-      message: "Link not found",
-    });
+    const link = await Link.findOneAndUpdate(
+      { _id: req.params.id, ownerId: req.userId },
+      allowedUpdates,
+      { new: true }
+    );
+
+    if (!link) return res.status(404).json({ message: "Link not found" });
+    res.json(link);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  res.json(link);
 };
 
 export const deleteLink = async (req, res) => {
-  const link = await Link.findOneAndDelete({
-    _id: req.params.id,
-    ownerId: req.userId,
-  });
-
-  if (!link) {
-    return res.status(404).json({
-      message: "Link not found",
-    });
+  try {
+    const link = await Link.findOneAndDelete({ _id: req.params.id, ownerId: req.userId });
+    if (!link) return res.status(404).json({ message: "Link not found" });
+    res.json({ message: "Link deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  res.json({
-    message: "Link deleted",
-  });
 };
 
 export const toggleLinkStatus = async (req, res) => {
-  const link = await Link.findOne({
-    _id: req.params.id,
-    ownerId: req.userId,
-  });
-
-  if (!link) {
-    return res.status(404).json({
-      message: "Link not found",
-    });
+  try {
+    const link = await Link.findOne({ _id: req.params.id, ownerId: req.userId });
+    if (!link) return res.status(404).json({ message: "Link not found" });
+    link.isActive = !link.isActive;
+    await link.save();
+    res.json(link);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  link.isActive = !link.isActive;
-
-  await link.save();
-
-  res.json(link);
 };

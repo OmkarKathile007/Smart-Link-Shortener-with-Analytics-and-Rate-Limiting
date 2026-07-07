@@ -3,10 +3,12 @@ import axios from "axios";
 
 const AuthContext = createContext(null);
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 export const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: `${API_BASE}/api`,
   headers: { "Content-Type": "application/json" },
-  withCredentials: true, 
+  withCredentials: true,
 });
 
 // --- Silent access-token refresh -------------------------------------------

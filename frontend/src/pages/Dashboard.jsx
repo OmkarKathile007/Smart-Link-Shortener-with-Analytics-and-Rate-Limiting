@@ -82,7 +82,7 @@ export default function Dashboard() {
     navigate('/login')
   }
 
-  const base = 'http://localhost:5000/s/'
+  const base = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/s/`
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
