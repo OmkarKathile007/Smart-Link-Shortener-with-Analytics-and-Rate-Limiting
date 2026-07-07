@@ -1,6 +1,7 @@
 import Link from "../models/Link.js";
 import isValidUrl from "../utils/isValidUrl.js";
 import { createLinkWithUniqueCode } from "../services/shortCode.service.js";
+import { invalidateLink } from "../services/linkCache.service.js";
 
 export const createLink = async (req, res) => {
   const { longUrl, customAlias, expiresAt } = req.body;
@@ -63,6 +64,8 @@ export const updateLink = async (req, res) => {
     );
 
     if (!link) return res.status(404).json({ message: "Link not found" });
+    // The redirect target may have changed — drop the cached entry.
+    invalidateLink(link.shortCode);
     res.json(link);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -73,6 +76,7 @@ export const deleteLink = async (req, res) => {
   try {
     const link = await Link.findOneAndDelete({ _id: req.params.id, ownerId: req.userId });
     if (!link) return res.status(404).json({ message: "Link not found" });
+    invalidateLink(link.shortCode);
     res.json({ message: "Link deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -85,6 +89,8 @@ export const toggleLinkStatus = async (req, res) => {
     if (!link) return res.status(404).json({ message: "Link not found" });
     link.isActive = !link.isActive;
     await link.save();
+    // isActive flipped — a cached entry would keep redirecting; invalidate it.
+    invalidateLink(link.shortCode);
     res.json(link);
   } catch (err) {
     res.status(500).json({ message: err.message });
